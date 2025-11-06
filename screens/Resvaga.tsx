@@ -1,53 +1,73 @@
 import { useEffect, useState } from 'react';
-import { Text, View, KeyboardAvoidingView, TouchableOpacity, ImageBackground } from 'react-native';
+import { Text, View, KeyboardAvoidingView, TouchableOpacity, ImageBackground, Platform } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { auth, firestore } from '../firebase';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import styles from '../estilo';
 
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Resvaga } from '../model/Resvaga';
 
 export default function CadastroResvaga() {
   const [formResvaga, setFormResvaga] = useState<Partial<Resvaga>>({});
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dataSelecionada, setDataSelecionada] = useState<Date | undefined>(undefined);
 
   const navigation = useNavigation();
-
   const route = useRoute();
 
-   useEffect(() => {
+  useEffect(() => {
     if (route.params) {
-     setFormResvaga(route.params.resvaga);
+      setFormResvaga(route.params.resvaga);
+      if (route.params.resvaga?.data) {
+        const partes = route.params.resvaga.data.split('/');
+        const data = new Date(`${partes[2]}-${partes[1]}-${partes[0]}`);
+        setDataSelecionada(data);
+      }
     }
   }, [route.params]);
 
   const salvar = async () => {
-  try {
-    const refResvaga = firestore
-      .collection("Usuario")
-      .doc(auth.currentUser?.uid)
-      .collection("Resvaga");
+    try {
+      const refResvaga = firestore
+        .collection("Usuario")
+        .doc(auth.currentUser?.uid)
+        .collection("Resvaga");
 
-    const novoResvaga = new Resvaga(formResvaga);
+      const novoResvaga = new Resvaga(formResvaga);
 
-    if(formResvaga.id) {
-      const idResvaga = refResvaga.doc(formResvaga.id);
-      await idResvaga.update(novoResvaga.toFirestore());
-      alert('Reserva atualizada com sucesso!');
-    } else {
-      const idResvaga = refResvaga.doc();
-      novoResvaga.id = idResvaga.id;
-      await idResvaga.set(novoResvaga.toFirestore());
-      alert('Reserva feita com sucesso!');
+      if (formResvaga.id) {
+        const idResvaga = refResvaga.doc(formResvaga.id);
+        await idResvaga.update(novoResvaga.toFirestore());
+        alert('Reserva atualizada com sucesso!');
+      } else {
+        const idResvaga = refResvaga.doc();
+        novoResvaga.id = idResvaga.id;
+        await idResvaga.set(novoResvaga.toFirestore());
+        alert('Reserva feita com sucesso!');
+      }
+
+      setFormResvaga({});
+      setDataSelecionada(undefined);
+    } catch (e) {
+      console.error("Erro ao salvar reserva:", e);
+      alert("Erro ao salvar reserva!");
     }
+  };
 
-  
-    setFormResvaga({}); // Limpa o formulário
-  } catch (e) {
-    console.error("Erro ao salvar reserva:", e);
-    alert("Erro ao salvar reserva!");
-  }
-};
+  // Quando o usuário escolhe uma data no calendário
+  const onChangeData = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDataSelecionada(selectedDate);
+      const dataFormatada = selectedDate.toLocaleDateString('pt-BR');
+      setFormResvaga({
+        ...formResvaga,
+        data: dataFormatada,
+      });
+    }
+  };
 
   return (
     <KeyboardAvoidingView behavior='padding' style={styles.container}>
@@ -58,10 +78,7 @@ export default function CadastroResvaga() {
           <Text style={{ color: '#e9ce33ff', fontWeight: 'bold', marginTop: 10 }}>Tipo de Vaga</Text>
           <Picker
             selectedValue={formResvaga.tipo}
-            onValueChange={valor => setFormResvaga({
-              ...formResvaga,
-              tipo: valor
-            })}
+            onValueChange={valor => setFormResvaga({ ...formResvaga, tipo: valor })}
             style={{ backgroundColor: '#fff', marginTop: 5 }}
           >
             <Picker.Item label="Selecione..." value="" />
@@ -70,32 +87,40 @@ export default function CadastroResvaga() {
             <Picker.Item label="Idoso" value="idoso" />
           </Picker>
 
-          <Text style={{ color: '#e9ce33ff', fontWeight: 'bold', marginTop: 10 }}>Tipo de Vaga</Text>
+          <Text style={{ color: '#e9ce33ff', fontWeight: 'bold', marginTop: 10 }}>Tipo de Veículo</Text>
           <Picker
-            selectedValue={formResvaga.tipo}
-            onValueChange={valor => setFormResvaga({
-              ...formResvaga,
-              vaga: valor
-            })}
+            selectedValue={formResvaga.vaga}
+            onValueChange={valor => setFormResvaga({ ...formResvaga, vaga: valor })}
             style={{ backgroundColor: '#fff', marginTop: 5 }}
           >
             <Picker.Item label="Selecione..." value="" />
             <Picker.Item label="Carro" value="carro" />
             <Picker.Item label="Moto" value="moto" />
-             <Picker.Item label="Van" value="van" />
+            <Picker.Item label="Van" value="van" />
           </Picker>
 
-          <TextInput
-            label='Data da Reserva'
-            placeholder="DD/MM/AAAA"
-            onChangeText={valor => setFormResvaga({
-              ...formResvaga,
-              data: valor
-            })}
-            value={formResvaga.data}
-            style={styles.input}
-            activeUnderlineColor='#e9ce33ff'
-          />
+          <Text style={{ color: '#e9ce33ff', fontWeight: 'bold', marginTop: 10 }}>Data da Reserva</Text>
+
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <TextInput
+              label="Data da Reserva"
+              value={formResvaga.data || ''}
+              editable={false}
+              style={styles.input}
+              activeUnderlineColor="#e9ce33ff"
+              right={<TextInput.Icon icon="calendar" />}
+            />
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={dataSelecionada || new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
+              onChange={onChangeData}
+              minimumDate={new Date()}
+            />
+          )}
         </View>
 
         <View style={styles.buttonView}>
@@ -106,6 +131,8 @@ export default function CadastroResvaga() {
           <TouchableOpacity
             style={[styles.button, styles.buttonSec]}
             onPress={() => navigation.replace('Página Inicial')}
+
+
           >
             <Text style={[styles.buttonText, styles.buttonSecText]}>Voltar</Text>
           </TouchableOpacity>
