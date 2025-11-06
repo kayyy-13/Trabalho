@@ -56,7 +56,7 @@ export default function CadastroResvaga() {
     }
   };
 
-  // Quando o usuário escolhe uma data no calendário
+  
   const onChangeData = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {

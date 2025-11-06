@@ -11,6 +11,7 @@ import { Resvaga } from '../model/Resvaga';
 
 import { AccordionItem } from 'react-native-accordion-list-view';
 import { FontAwesome6 } from '@react-native-vector-icons/fontawesome6';
+import { Usuario } from '../model/Usuario';
 
 
 export default function ListarResvaga() {

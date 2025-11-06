@@ -62,7 +62,7 @@ export default function ListarRua() {
                         onLongPress={ () => excluir(item) }
                     >
                         <Text style={styles.listText}>Rua: {item.rua}</Text>
-                        <Text style={styles.listText}>Vaga: {item.vaga}</Text>
+                        <Text style={styles.listText}>N° da Vaga: {item.vaga}</Text>
                         <Text style={styles.listText}>Status: {item.status}</Text>
                     </TouchableOpacity>
                 )}

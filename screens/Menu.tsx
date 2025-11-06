@@ -43,7 +43,7 @@ export default function Menu() {
 
             {usuario.tipo === '2' && (
                 <>
-                    <Drawer.Screen name='Lista de Ruas' component={RuaListar} />
+                    <Drawer.Screen name='Lista de Vagas Ocupadas' component={RuaListar} />
                     <Drawer.Screen name='Lista de Reservas' component={ReservaListar} />
                     <Drawer.Screen name='Lista de Reservas2' component={ReservaListar2} />
                 </>

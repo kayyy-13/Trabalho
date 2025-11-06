@@ -68,7 +68,7 @@ export default function CadastroRua() {
             value={formRua.rua}
           />
            <TextInput 
-            label='Vaga' 
+            label='N° da Vaga' 
             onChangeText={valor => setFormRua({
               ...formRua,
               vaga : valor
@@ -77,16 +77,16 @@ export default function CadastroRua() {
             activeUnderlineColor='#e9ce33ff'
             value={formRua.vaga}
           />
-           <TextInput 
-            label='Status' 
-            onChangeText={valor => setFormRua({
-              ...formRua,
-              status : valor
-            })}            
-            style={styles.input}
-            activeUnderlineColor='#e9ce33ff'
-            value={formRua.status}
-          />
+           <Picker
+            selectedValue={formRua.status}
+            onValueChange={valor => setFormRua({ ...formRua, status: valor })}
+            style={{ backgroundColor: '#fff', marginTop: 5 }}
+          >
+            <Picker.Item label="Selecione..." value="" />
+            <Picker.Item label="Ocupada" value="ocupada" />
+            <Picker.Item label="Livre" value="livre" />
+
+          </Picker>
 
         </View>
 
