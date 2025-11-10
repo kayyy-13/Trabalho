@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import styles from '../estilo';
 
 import { Usuario } from '../model/Usuario';
+import { Picker } from '@react-native-picker/picker';
 
 
 export default function Register() {
@@ -97,15 +98,16 @@ export default function Register() {
             style={styles.input}
             activeUnderlineColor='#e9ce33ff'
           />
-        <TextInput 
-            label='PCD' 
-            onChangeText={valor => setFormUsuario({
-              ...formUsuario,
-              PCD : valor
-            })}
-            style={styles.input}
-            activeUnderlineColor='#e9ce33ff'
-          />
+         <Text style={{ color: '#e9ce33ff', fontWeight: 'bold', marginTop: 10 }}>PCD</Text>
+          <Picker
+            selectedValue={formUsuario.PCD}
+            onValueChange={valor => setFormUsuario({ ...formUsuario, PCD: valor })}
+            style={{ backgroundColor: '#fff', marginTop: 5 }}
+          >
+            <Picker.Item label="Selecione..." value="" />
+            <Picker.Item label="Não" value="não" />
+             <Picker.Item label="Sim" value="sim" />
+          </Picker>
         </View>
 
         <View style={styles.buttonView}>
